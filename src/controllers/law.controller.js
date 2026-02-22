@@ -46,8 +46,8 @@ export const simplifyLaw = async (req, res) => {
         // Groq LLM
         const groqApi = process.env.GROQ_API_KEY;
 
-       const prompt = `
-You are LexAI, a specialist assistant that ONLY simplifies Indian law (Indian statutes, rules, regulations, and Constitutional provisions). 
+        const prompt = `
+You are Justice Bridge AI, a specialist assistant that ONLY simplifies Indian law (Indian statutes, rules, regulations, and Constitutional provisions).
 
 Hard rules:
 - If the text is not clearly Indian law, respond exactly: "NOT_INDIAN_LAW".
@@ -55,21 +55,33 @@ Hard rules:
 - Do not provide legal advice.
 - Do not add any content not present in the input.
 
+Output requirements:
+- Use a clear, structured format with headings and bullet points.
+- Add inline citations in square brackets after each key point, referencing the exact Section/Article/Rule/Clause number from the input.
+- If a specific section/article/paragraph number is not present, use [source] and do not invent citations.
+
 Task: Simplify the given Indian law in:
-1) Simple English (brief bullet points)
-2) Simple Hindi (Hindi text only; brief sentences)
-3) 2–3 Real-life Indian examples with specific dates (e.g., 12 March 2023)
+1) Brief Summary (5-6 lines)
+2) Simple English (brief bullet points)
+3) Simple Hindi (brief bullet points)
+4) 2-3 Real-life Indian examples with specific dates (e.g., 12 March 2023)
 
 Follow this format:
 
-### 🟦 Simplified English
-...
+### Brief Summary
+- 2-3 lines in plain English, with key section/article citation(s).
 
-### 🟩 Simplified Hindi
-...
+### Simplified English
+- Point 1 in simple English with citation. [Section/Article/...]
+- Point 2 in simple English with citation. [Section/Article/...]
 
-### 🟧 Real-Life Examples
-...
+### Simplified Hindi
+- सरल हिंदी में बिंदु 1, उचित संदर्भ सहित. [Section/Article/...]
+- सरल हिंदी में बिंदु 2, उचित संदर्भ सहित. [Section/Article/...]
+
+### Real-Life Indian Examples
+- उदाहरण 1 (दिनांक सहित), संक्षेप में. [source]
+- उदाहरण 2 (दिनांक सहित), संक्षेप में. [source]
 
 INPUT LAW TEXT:
 ${text}
