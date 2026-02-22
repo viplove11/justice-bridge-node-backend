@@ -124,6 +124,19 @@ curl -X POST http://localhost:8080/api/law/simplify \
   -F "userId=64f1c6c0d5f4f6a2a1234567"
 ```
 
+Response includes `recordId` for the saved entry.
+Response includes `isLiked` (default `false`) for the saved entry.
+
+Example response:
+```json
+{
+  "message": "Simplified successfully",
+  "simplifiedText": "### 🟦 Simplified English\\n- ...",
+  "recordId": "64f1c6c0d5f4f6a2a1234567",
+  "isLiked": false
+}
+```
+
 ## Judgement Simplification
 
 Endpoint: `POST /api/judgement/simplify`
@@ -157,6 +170,18 @@ curl -X POST http://localhost:8080/api/judgement/simplify \
   -F "userId=64f1c6c0d5f4f6a2a1234567"
 ```
 
+Response includes `recordId` for the saved entry.
+Response includes `isLiked` (default `false`) for the saved entry.
+
+Example response:
+```json
+{
+  "message": "Simplified successfully",
+  "simplifiedText": "### 🟦 Simplified English\\n- ...",
+  "recordId": "64f1c6c0d5f4f6a2a1234567",
+  "isLiked": false
+}
+```
 ## Chat (RAG)
 
 Endpoint: `POST /api/chat`
@@ -240,10 +265,45 @@ Response includes both law and judgement entries merged by `createdAt` (desc). E
 - `type`: `law` or `judgement`
 - `userQuery`: user-provided text or extracted PDF text
 - `aiResponse`: LLM response
+- `isLiked`: boolean flag
 
 This endpoint always returns the latest 5 combined entries.
 
 Example (curl):
 ```bash
 curl "http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/all-simplifications"
+```
+
+Endpoint: `PATCH /api/dashboard/user/:userId/law/:id/like`
+Local URL: `http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/law/64f1c6c0d5f4f6a2a1234567/like`
+
+Payload (JSON):
+```json
+{
+  "isLiked": true
+}
+```
+
+Example (curl):
+```bash
+curl -X PATCH http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/law/64f1c6c0d5f4f6a2a1234567/like \
+  -H "Content-Type: application/json" \
+  -d '{"isLiked":true}'
+```
+
+Endpoint: `PATCH /api/dashboard/user/:userId/judgement/:id/like`
+Local URL: `http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/judgement/64f1c6c0d5f4f6a2a1234567/like`
+
+Payload (JSON):
+```json
+{
+  "isLiked": false
+}
+```
+
+Example (curl):
+```bash
+curl -X PATCH http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/judgement/64f1c6c0d5f4f6a2a1234567/like \
+  -H "Content-Type: application/json" \
+  -d '{"isLiked":false}'
 ```

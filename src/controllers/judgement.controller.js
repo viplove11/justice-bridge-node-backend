@@ -99,7 +99,7 @@ ${text}
         }
 
         // 🟢 Save history to MongoDB
-        await JudgementSimplifier.create({
+        const record = await JudgementSimplifier.create({
             input_type: inputType,
             input_text: inputType === "text" ? text : "",
             file_name: inputType === "file" ? fileName : "",
@@ -110,7 +110,9 @@ ${text}
 
         return res.status(200).json({
             message: "Simplified successfully",
-            simplifiedText: simplified
+            simplifiedText: simplified,
+            recordId: record._id,
+            isLiked: record.isLiked
         });
 
     } catch (error) {

@@ -29,6 +29,10 @@ const judgementSimplifierSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    isLiked: {
+      type: Boolean,
+      default: false
+    },
 
     // Optional user (if logged in)
     userId: {

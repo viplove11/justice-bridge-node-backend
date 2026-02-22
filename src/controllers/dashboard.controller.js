@@ -16,6 +16,13 @@ const requireValidUserId = (userId) => {
   return new mongoose.Types.ObjectId(userId);
 };
 
+const requireValidRecordId = (recordId) => {
+  if (!recordId || !mongoose.Types.ObjectId.isValid(recordId)) {
+    return null;
+  }
+  return new mongoose.Types.ObjectId(recordId);
+};
+
 export const getUserSimplificationStats = async (req, res) => {
   try {
     const { userId } = req.params; // userId sent in string format in URL
@@ -74,6 +81,7 @@ export const getUserLawSimplifications = async (req, res) => {
       // “user query” = what the user provided (typed text or extracted pdf text)
       userQuery: doc.input_type === "text" ? doc.input_text : doc.extracted_text,
       aiResponse: doc.response_text,
+      isLiked: doc.isLiked,
       createdAt: doc.createdAt
     }));
 
@@ -114,6 +122,7 @@ export const getUserJudgementSimplifications = async (req, res) => {
       fileName: doc.file_name,
       userQuery: doc.input_type === "text" ? doc.input_text : doc.extracted_text,
       aiResponse: doc.response_text,
+      isLiked: doc.isLiked,
       createdAt: doc.createdAt
     }));
 
@@ -158,6 +167,7 @@ export const getUserAllSimplifications = async (req, res) => {
       fileName: doc.file_name,
       userQuery: doc.input_type === "text" ? doc.input_text : doc.extracted_text,
       aiResponse: doc.response_text,
+      isLiked: doc.isLiked,
       createdAt: doc.createdAt
     }));
 
@@ -168,6 +178,7 @@ export const getUserAllSimplifications = async (req, res) => {
       fileName: doc.file_name,
       userQuery: doc.input_type === "text" ? doc.input_text : doc.extracted_text,
       aiResponse: doc.response_text,
+      isLiked: doc.isLiked,
       createdAt: doc.createdAt
     }));
 
@@ -182,6 +193,76 @@ export const getUserAllSimplifications = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching user all simplifications:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateLawSimplificationLike = async (req, res) => {
+  try {
+    const { userId, id } = req.params;
+    const { isLiked } = req.body;
+
+    const userObjectId = requireValidUserId(userId);
+    const recordObjectId = requireValidRecordId(id);
+    if (!userObjectId || !recordObjectId) {
+      return res.status(400).json({ message: "Invalid userId or recordId" });
+    }
+
+    if (typeof isLiked !== "boolean") {
+      return res.status(400).json({ message: "isLiked must be a boolean" });
+    }
+
+    const updated = await LawSimplifier.findOneAndUpdate(
+      { _id: recordObjectId, userId: userObjectId },
+      { $set: { isLiked } },
+      { new: true }
+    ).lean();
+
+    if (!updated) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    return res.status(200).json({
+      id: updated._id,
+      isLiked: updated.isLiked
+    });
+  } catch (error) {
+    console.error("Error updating law simplification like:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateJudgementSimplificationLike = async (req, res) => {
+  try {
+    const { userId, id } = req.params;
+    const { isLiked } = req.body;
+
+    const userObjectId = requireValidUserId(userId);
+    const recordObjectId = requireValidRecordId(id);
+    if (!userObjectId || !recordObjectId) {
+      return res.status(400).json({ message: "Invalid userId or recordId" });
+    }
+
+    if (typeof isLiked !== "boolean") {
+      return res.status(400).json({ message: "isLiked must be a boolean" });
+    }
+
+    const updated = await JudgementSimplifier.findOneAndUpdate(
+      { _id: recordObjectId, userId: userObjectId },
+      { $set: { isLiked } },
+      { new: true }
+    ).lean();
+
+    if (!updated) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    return res.status(200).json({
+      id: updated._id,
+      isLiked: updated.isLiked
+    });
+  } catch (error) {
+    console.error("Error updating judgement simplification like:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
