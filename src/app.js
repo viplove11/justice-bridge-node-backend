@@ -20,7 +20,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("/test-route", (req, res) => {
+app.get("/test-route", (req, res) => {
   return res.json({ msg: "ok" });
 });
 
