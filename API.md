@@ -232,3 +232,18 @@ Example (curl):
 ```bash
 curl "http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/judgement-simplifications?page=1&limit=20"
 ```
+
+Endpoint: `GET /api/dashboard/user/:userId/all-simplifications`
+Local URL: `http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/all-simplifications`
+
+Response includes both law and judgement entries merged by `createdAt` (desc). Each item includes:
+- `type`: `law` or `judgement`
+- `userQuery`: user-provided text or extracted PDF text
+- `aiResponse`: LLM response
+
+This endpoint always returns the latest 5 combined entries.
+
+Example (curl):
+```bash
+curl "http://localhost:8080/api/dashboard/user/64f1c6c0d5f4f6a2a1234567/all-simplifications"
+```

@@ -128,3 +128,60 @@ export const getUserJudgementSimplifications = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getUserAllSimplifications = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userObjectId = requireValidUserId(userId);
+    if (!userObjectId) {
+      return res.status(400).json({ message: "Invalid userId" });
+    }
+
+    const limit = 5;
+    const [lawItems, judgementItems, lawTotal, judgementTotal] = await Promise.all([
+      LawSimplifier.find({ userId: userObjectId })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean(),
+      JudgementSimplifier.find({ userId: userObjectId })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean(),
+      LawSimplifier.countDocuments({ userId: userObjectId }),
+      JudgementSimplifier.countDocuments({ userId: userObjectId })
+    ]);
+
+    const normalizedLaw = lawItems.map((doc) => ({
+      id: doc._id,
+      type: "law",
+      inputType: doc.input_type,
+      fileName: doc.file_name,
+      userQuery: doc.input_type === "text" ? doc.input_text : doc.extracted_text,
+      aiResponse: doc.response_text,
+      createdAt: doc.createdAt
+    }));
+
+    const normalizedJudgement = judgementItems.map((doc) => ({
+      id: doc._id,
+      type: "judgement",
+      inputType: doc.input_type,
+      fileName: doc.file_name,
+      userQuery: doc.input_type === "text" ? doc.input_text : doc.extracted_text,
+      aiResponse: doc.response_text,
+      createdAt: doc.createdAt
+    }));
+
+    const merged = [...normalizedLaw, ...normalizedJudgement]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, limit);
+
+    return res.status(200).json({
+      limit,
+      total: lawTotal + judgementTotal,
+      items: merged
+    });
+  } catch (error) {
+    console.error("Error fetching user all simplifications:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
