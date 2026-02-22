@@ -20,6 +20,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// index route
+app.get("/", (req, res) => {
+  res.send("Backend running...");
+});
+
+// test route
 app.get("/test-route", (req, res) => {
   return res.json({ msg: "ok" });
 });
